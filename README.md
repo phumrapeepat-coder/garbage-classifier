@@ -11,7 +11,6 @@ no pretrained detector), so you can pick one object and classify only that crop.
 |---|---|
 | `web/` | Flask web app + the trained model (`web/model/garbage_cnn.keras`, EfficientNetV2-B0, 224×224) |
 | `training/` | `Garbage_CNN_RealLife_SK.ipynb` – Google Colab notebook that trained the model |
-| `opencv-basics/` | Lab code: camera capture (`main.py`) and gray / mean blur / iterative threshold mask (`detect.py`) |
 
 ## Results (from the training notebook)
 
