@@ -1,0 +1,164 @@
+/* Clean, minimal, light (Apple-like). One accent colour. System fonts only: works offline, no CDNs. */
+:root {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --text: #1d1d1f;
+  --muted: #6e6e73;
+  --accent: #0a84ff;
+  --accent-dark: #0071e3;
+  --line: #d2d2d7;
+  --amber-bg: #fff4e5;
+  --amber-text: #8a5a00;
+  --error: #b3261e;
+  --radius: 18px;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  --s1: 8px;
+  --s2: 16px;
+  --s3: 24px;
+  --s4: 32px;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app { max-width: 720px; margin: 0 auto; padding: var(--s4) var(--s2) calc(var(--s4) * 2); }
+.topbar { margin-bottom: var(--s3); }
+h1 { margin: 0 0 var(--s1); font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; }
+h2 { margin: 0 0 var(--s2); font-size: 1.15rem; font-weight: 600; }
+.sub { margin: 0; color: var(--muted); }
+
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: var(--s3);
+  margin-bottom: var(--s3);
+}
+
+.muted { color: var(--muted); }
+.small { font-size: 0.875rem; margin: var(--s1) 0; }
+.error { color: var(--error); min-height: 1.2em; margin: var(--s1) 0 0; }
+.eyebrow { margin: 0; color: var(--muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; }
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* Buttons: pill shaped, at least 44px tall for touch. */
+.actions { display: flex; flex-wrap: wrap; gap: var(--s1); margin: var(--s2) 0 0; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 44px; padding: 0 var(--s3);
+  border: 1px solid var(--line); border-radius: 999px;
+  background: var(--card); color: var(--text);
+  font: inherit; font-weight: 500; cursor: pointer;
+}
+.btn:hover { background: #f0f0f3; }
+.btn:disabled, .btn[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-dark); }
+.btn-small { min-height: 36px; padding: 0 var(--s2); font-size: 0.9rem; }
+.btn:focus-visible, select:focus-visible, input:focus-visible, .crop-box:focus-visible, summary:focus-visible {
+  outline: 3px solid rgba(10, 132, 255, 0.45); outline-offset: 2px;
+}
+
+.camera-options { margin: var(--s2) 0 0; }
+.camera-options summary { cursor: pointer; color: var(--accent); font-size: 0.9rem; }
+.camera-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s1); margin-top: var(--s1); }
+.camera-row select {
+  flex: 1 1 200px; min-height: 36px; padding: 0 var(--s1);
+  border: 1px solid var(--line); border-radius: 10px; background: #fff; font: inherit;
+}
+
+/* Photo area */
+.stage {
+  position: relative; display: flex; align-items: center; justify-content: center;
+  min-height: 220px; margin-top: var(--s2);
+  background: #f0f0f3; border-radius: 14px; overflow: hidden;
+}
+.empty { margin: 0; padding: var(--s3); color: var(--muted); text-align: center; }
+.media { display: block; width: 100%; max-height: 420px; object-fit: contain; }
+.media.mirrored { transform: scaleX(-1); } /* only the live preview is mirrored, never the captured pixels */
+/* Live camera: the frame takes the camera's own shape (no letterbox bars, no stretching). */
+#video.media { width: auto; height: auto; max-width: 100%; max-height: min(60vh, 520px); }
+/* Vertical frame: a 3:4 centre slice of the feed; Capture cuts the same slice (CameraHelpers.frameRect). */
+.stage.portrait #video.media { aspect-ratio: 3 / 4; height: min(60vh, 520px); width: auto; object-fit: cover; }
+.toggle { display: flex; align-items: center; gap: var(--s1); margin-top: var(--s1); cursor: pointer; }
+.toggle input { width: 18px; height: 18px; accent-color: var(--accent); margin: 0; }
+
+/* Crop editor: the overlay covers the stage; touch-action:none lets a finger draw without scrolling. */
+.crop-overlay { position: absolute; inset: 0; touch-action: none; cursor: crosshair; user-select: none; -webkit-user-select: none; }
+.crop-overlay.busy { cursor: progress; pointer-events: none; opacity: 0.6; }
+.crop-frame { position: absolute; overflow: hidden; } /* placed by JS exactly over the drawn image */
+.crop-box {
+  position: absolute; border: 2px solid #fff; cursor: move;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.45), 0 0 0 1px var(--accent);
+}
+.handle { position: absolute; width: 44px; height: 44px; }
+.handle::after {
+  content: ""; position: absolute; left: 15px; top: 15px; width: 14px; height: 14px;
+  background: #fff; border: 2px solid var(--accent); border-radius: 50%;
+}
+.handle.nw { left: -22px; top: -22px; cursor: nwse-resize; }
+.handle.ne { right: -22px; top: -22px; cursor: nesw-resize; }
+.handle.sw { left: -22px; bottom: -22px; cursor: nesw-resize; }
+.handle.se { right: -22px; bottom: -22px; cursor: nwse-resize; }
+
+/* Object picker: numbered boxes over the photo (positions in % of the drawn image, set by JS). */
+.det-overlay { position: absolute; inset: 0; pointer-events: none; }
+.det-frame { position: absolute; }
+.det-overlay.busy { opacity: 0.6; cursor: progress; }
+.det-box {
+  --c: #ff3b30;
+  position: absolute; padding: 0; margin: 0; pointer-events: auto; cursor: pointer;
+  background: transparent; border: 3px solid var(--c); border-radius: 6px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.8);
+}
+.det-box:hover, .det-box:focus-visible { background: rgba(255, 255, 255, 0.22); outline: 3px solid #fff; outline-offset: 1px; }
+.det-tag {
+  position: absolute; left: -3px; top: -3px; min-width: 28px; height: 28px; padding: 0 6px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--c); color: #fff; font-weight: 700; font-size: 0.95rem; border-radius: 6px 0 6px 0;
+}
+.object-picker { margin-top: var(--s1); }
+.object-picker .actions { margin-top: var(--s1); }
+.dot { width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; background: var(--c); }
+
+.status { min-height: 1.4em; margin: var(--s2) 0 0; color: var(--muted); font-size: 0.9rem; }
+.status.error { color: var(--error); }
+.status.busy { color: var(--accent); }
+
+/* Result card */
+.big-label { margin: 4px 0; font-size: 2.4rem; font-weight: 700; letter-spacing: -0.02em; text-transform: capitalize; }
+.note-amber { background: var(--amber-bg); color: var(--amber-text); border-radius: 14px; padding: var(--s2); }
+.note-amber .small { margin-bottom: 0; }
+.note-title { margin: 0 0 4px; font-size: 1.4rem; font-weight: 700; }
+
+.bars { list-style: none; margin: var(--s2) 0 0; padding: 0; display: grid; gap: 12px; }
+.bar-head { display: flex; justify-content: space-between; font-size: 0.95rem; text-transform: capitalize; }
+.track { height: 8px; margin-top: 4px; border-radius: 999px; background: #e8e8ed; overflow: hidden; }
+.fill { height: 100%; border-radius: 999px; background: var(--accent); }
+
+.tips { margin-top: var(--s3); }
+.tips ul { margin: var(--s1) 0 0; padding-left: 1.2em; color: var(--muted); font-size: 0.95rem; }
+
+.slider-block { margin-top: var(--s3); padding-top: var(--s2); border-top: 1px solid #ececf0; }
+.slider-block label { font-weight: 600; }
+input[type="range"] { display: block; width: 100%; margin: var(--s2) 0 var(--s1); accent-color: var(--accent); }
+
+@media (max-width: 479px) {
+  .app { padding: var(--s2) 12px var(--s4); }
+  .card { padding: var(--s2); }
+  .actions .btn { width: 100%; }
+  h1 { font-size: 1.6rem; }
+  .big-label { font-size: 2rem; }
+}

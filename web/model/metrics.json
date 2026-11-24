@@ -1,0 +1,30 @@
+[
+  {
+    "model":"new",
+    "test_set":"kaggle_test",
+    "images":2450,
+    "accuracy":0.9383673469,
+    "macro_f1":0.9293333243
+  },
+  {
+    "model":"new +flipTTA",
+    "test_set":"kaggle_test",
+    "images":2450,
+    "accuracy":0.94,
+    "macro_f1":0.9309475639
+  },
+  {
+    "model":"new",
+    "test_set":"web_test",
+    "images":378,
+    "accuracy":0.8677248677,
+    "macro_f1":0.8614474264
+  },
+  {
+    "model":"new +flipTTA",
+    "test_set":"web_test",
+    "images":378,
+    "accuracy":0.8677248677,
+    "macro_f1":0.8549909346
+  }
+]

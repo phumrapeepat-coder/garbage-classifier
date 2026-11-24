@@ -1,0 +1,36 @@
+[project]
+name = "garbage-web"
+version = "0.1.0"
+description = "Local web app to test the real-life garbage classifier on your own photos"
+requires-python = ">=3.11"
+# The install list that was actually used lives in requirements.txt (pinned TF/Keras); this mirrors it.
+dependencies = [
+  "tensorflow==2.21.0",
+  "keras==3.13.2",
+  "flask>=3.1,<4",
+  "pillow>=11.3",
+  "pillow-heif>=0.18",
+  "numpy>=2.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+# No pip install of this package is needed: tests and the server run with PYTHONPATH=src.
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.mypy]
+strict = true
+mypy_path = "src"
+python_version = "3.11"
+
+[[tool.mypy.overrides]]
+module = ["keras.*", "tensorflow.*", "pillow_heif.*"]
+ignore_missing_imports = true

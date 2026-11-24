@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Garbage classifier (SK model)</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <h1>Garbage classifier <small>(SK model)</small></h1>
+      <p class="sub">Test the real-life model on your own photos. Choose an image or use the camera. Objects are found automatically; pick one and it is cropped and classified.</p>
+    </header>
+
+    <section class="card" aria-labelledby="photo-h">
+      <h2 id="photo-h">Photo</h2>
+
+      <div class="actions">
+        <label class="btn btn-primary" for="file-input" id="choose-label">Choose image</label>
+        <input id="file-input" class="visually-hidden" type="file"
+               accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif">
+        <button id="camera-btn" class="btn" type="button">Use camera</button>
+      </div>
+
+      <details class="camera-options">
+        <summary>Camera options</summary>
+        <div class="camera-row">
+          <label for="camera-source">Camera</label>
+          <select id="camera-source">
+            <option value="">Default camera</option>
+          </select>
+          <button id="refresh-cameras-btn" class="btn btn-small" type="button">Refresh cameras</button>
+        </div>
+        <p id="camera-hint" class="muted small" role="status"></p>
+        <p class="muted small">
+          An iPhone can act as a webcam through Continuity Camera on a Mac. It only appears in the list when your Mac and
+          browser report it; this page cannot pair with it. After allowing the camera once, press Refresh cameras.
+        </p>
+      </details>
+
+      <div class="stage" id="stage">
+        <p id="empty-msg" class="empty">No photo yet. Choose an image or use the camera.</p>
+        <video id="video" class="media" autoplay playsinline muted hidden></video>
+        <img id="preview" class="media" alt="Selected photo preview" hidden>
+        <div id="crop-overlay" class="crop-overlay" hidden>
+          <div id="crop-frame" class="crop-frame">
+            <div id="crop-box" class="crop-box" tabindex="0" role="group"
+                 aria-label="Crop selection" aria-describedby="crop-help">
+              <span class="handle nw" data-handle="nw"></span>
+              <span class="handle ne" data-handle="ne"></span>
+              <span class="handle sw" data-handle="sw"></span>
+              <span class="handle se" data-handle="se"></span>
+            </div>
+          </div>
+        </div>
+        <div id="det-overlay" class="det-overlay" hidden>
+          <div id="det-frame" class="det-frame" role="group" aria-label="Detected objects"></div>
+        </div>
+      </div>
+      <canvas id="canvas" hidden></canvas>
+      <label id="vertical-row" class="toggle small" hidden>
+        <input id="vertical-toggle" type="checkbox">
+        Vertical frame (3:4). Turns on automatically for an iPhone camera; Capture keeps exactly this frame.
+      </label>
+      <p id="camera-info" class="muted small"></p>
+      <p id="image-note" class="muted small" hidden></p>
+
+      <p id="crop-help" class="muted small" hidden>
+        Drag on the photo to draw a box, drag the box to move it, or drag a corner to resize it. Keyboard: arrow keys move
+        the box, Shift plus arrows resize it, Enter applies, Escape cancels.
+      </p>
+      <p id="crop-error" class="error small" role="alert"></p>
+
+      <div id="object-picker" class="object-picker" hidden>
+        <p class="small muted">Tip: objects should lie apart on a plain surface. Touching objects are found as one.</p>
+        <div id="object-list" class="actions" aria-label="Pick an object"></div>
+      </div>
+
+      <div class="actions">
+        <button id="capture-btn" class="btn btn-primary" type="button" hidden>Capture</button>
+        <button id="retake-btn" class="btn" type="button" hidden>Retake</button>
+        <button id="detect-btn" class="btn" type="button" hidden>Detect objects</button>
+        <button id="whole-btn" class="btn" type="button" hidden>Classify whole photo</button>
+        <button id="crop-btn" class="btn" type="button" hidden>Crop</button>
+        <button id="use-original-btn" class="btn" type="button" hidden>Use original</button>
+        <button id="apply-crop-btn" class="btn btn-primary" type="button" hidden>Apply</button>
+        <button id="cancel-crop-btn" class="btn" type="button" hidden>Cancel</button>
+        <button id="classify-btn" class="btn btn-primary" type="button" hidden>Classify</button>
+      </div>
+
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="card" id="result-card" aria-labelledby="result-h" hidden>
+      <h2 id="result-h" class="visually-hidden">Result</h2>
+
+      <div id="result-known">
+        <p class="eyebrow">Looks like</p>
+        <p id="result-label" class="big-label"></p>
+        <p id="result-conf" class="muted"></p>
+      </div>
+
+      <div id="result-unknown" class="note-amber" hidden>
+        <p class="note-title">Unknown, not sure</p>
+        <p class="small">The best guess is below your threshold, so no answer is given. Closest guesses:</p>
+      </div>
+
+      <ol id="bars" class="bars" aria-label="Top guesses"></ol>
+
+      <div id="retake-tips" class="tips" hidden>
+        <p class="eyebrow">To get a clearer result</p>
+        <ul id="tips-list"></ul>
+      </div>
+
+      <div class="slider-block">
+        <label for="threshold-slider">Unknown threshold: <output id="threshold-value" for="threshold-slider"></output></label>
+        <input id="threshold-slider" type="range" min="0.40" max="0.95" step="0.05" value="0.70">
+        <p id="threshold-hint" class="muted small"></p>
+        <p class="muted small">
+          Below the threshold the app says Unknown instead of guessing. Move the slider to see the answer change
+          instantly; nothing is uploaded again. The numbers are about, not exact: they were measured on a small web-photo
+          test set, without the mirror-image averaging this app also uses.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='camera_helpers.js') }}"></script>
+  <script src="{{ url_for('static', filename='crop_math.js') }}"></script>
+  <script src="{{ url_for('static', filename='decision.js') }}"></script>
+  <script src="{{ url_for('static', filename='file_rules.js') }}"></script>
+  <script src="{{ url_for('static', filename='detect_math.js') }}"></script>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

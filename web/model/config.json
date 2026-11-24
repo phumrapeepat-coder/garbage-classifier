@@ -1,0 +1,80 @@
+{
+  "dataset": "sumn2u/garbage-classification-v2/versions/12",
+  "seed": 42,
+  "backbone": "efficientnetv2b0",
+  "image_size": [
+    224,
+    224
+  ],
+  "classes": [
+    "battery",
+    "biological",
+    "cardboard",
+    "clothes",
+    "glass",
+    "metal",
+    "paper",
+    "plastic",
+    "shoes",
+    "trash"
+  ],
+  "label_to_id": {
+    "battery": 0,
+    "biological": 1,
+    "cardboard": 2,
+    "clothes": 3,
+    "glass": 4,
+    "metal": 5,
+    "paper": 6,
+    "plastic": 7,
+    "shoes": 8,
+    "trash": 9
+  },
+  "input_range": [
+    0,
+    255
+  ],
+  "preprocess": "EXIF transpose -> RGB -> bilinear resize to image_size -> float32 0..255",
+  "temperature": 0.7,
+  "max_per_class": null,
+  "near_dup_bits": 4,
+  "split": "StratifiedGroupKFold on dHash near-duplicate groups",
+  "train_rows": 11114,
+  "val_rows": 1584,
+  "kaggle_test": 2450,
+  "web_train": 1019,
+  "web_test": 378,
+  "own_train": 0,
+  "real_test": 0,
+  "head_epochs": 4,
+  "fine_epochs_max": 15,
+  "fine_lr": 5e-05,
+  "label_smoothing": 0.1,
+  "class_weight": {
+    "4": 0.6994336060415356,
+    "3": 0.7016414141414141,
+    "8": 0.784333098094566,
+    "6": 0.8350112697220136,
+    "7": 0.8799683293745052,
+    "2": 1.0252767527675277,
+    "5": 1.2213186813186814,
+    "1": 1.2818915801614763,
+    "0": 1.6320117474302496,
+    "9": 2.8644329896907217
+  },
+  "kaggle_cleaning": {
+    "enabled": true,
+    "max_drop_frac": 0.05,
+    "outlier_frac": 0.02
+  },
+  "zoom_out_p": 0.35,
+  "background_photos": 192,
+  "versions": {
+    "python": "3.13.16",
+    "tensorflow": "2.21.0",
+    "keras": "3.13.2",
+    "numpy": "2.4.6",
+    "pillow": "11.3.0",
+    "sklearn": "1.6.1"
+  }
+}
